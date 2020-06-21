@@ -44,14 +44,14 @@ class controlComandosCliente(object):
 
 
 class cliente(object):
-    def __init__(self):
-        pass
+    def __init__(self, client):
+        self.client = client
     
-    def publicar(client, topic, valor, qos = 0, retain = False):
-        client.publish(topic, valor, qos, retain)
+    def publicar(self, topic, valor, qos = 0, retain = False):
+        self.client.publish(topic, valor, qos, retain)
     
-    def desconectar(client):
-        client.disconnect()
+    def desconectar(self):
+        self.client.disconnect()
             
 
 # Enviar ALIVE cada 2 segundos, con thread
@@ -71,7 +71,7 @@ tramaAlive = globales.ALIVE_PERIOD + globales.USER_NAME
 #client.publish(topicUsuarios, mensaje, qos = 0, retain = False)
 #client.publish(topicSalas, mensaje, qos = 0, retain = False)
 
-javier = cliente()
+javier = cliente(client)
 
 opcion = 0
 
@@ -101,5 +101,5 @@ try:
 except KeyboardInterrupt:
     logging.warning("Desconectando del broker MQTT...")
 finally:
-    javier.desconectar(client)
+    javier.desconectar()
     logging.info("Se ha desconectado del broker. Saliendo...")

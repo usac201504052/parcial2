@@ -17,22 +17,23 @@ logging.basicConfig(
 def on_connect(client, userdata, rc):
     logging.info("Conectado al broker")
 
+# JAPO Funcion a ejecutar si se publica algo en el broker
+def on_publish(client, userdata, mid): 
+    publishText = "Publicacion satisfactoria"
+    logging.info(publishText)
+
 # JAPO Funcion que se ejecuta cuando llega un mensaje nuevo a un topic al que se esta suscrito.
 def on_message(client, userdata, msg):
     #Se muestra en pantalla informacion que ha llegado
     logging.info("Ha llegado el mensaje al topic: " + str(msg.topic))
     logging.info("El contenido del mensaje es: " + str(msg.payload))
-    
-    #Y se almacena en el log 
-    logCommand = 'echo "(' + str(msg.topic) + ') -> ' + str(msg.payload) + '" >> ' + LOG_FILENAME
-    os.system(logCommand)
 
 client = mqtt.Client(clean_session=True)         # JAPO Nueva instancia de cliente MQTT
 client.on_connect = on_connect                   # JAPO Funcion "Handler" a ejecutar cuando suceda la conexion
 client.on_publish = on_publish                   # JAPO Funcion "Handler" a ejecutar al publicar algo
 client.on_message = on_message                   # JAPO Funcion "Handler" a ejecutar al llegar un mensaje a un topic subscrito
-client.username_pw_set(MQTT_USER, MQTT_PASS)     # JAPO Credenciales requeridas por el broker
-client.connect(host=MQTT_HOST, port = MQTT_PORT) # JAPO Conectar al servidor remoto
+client.username_pw_set(globales.MQTT_USER, globales.MQTT_PASS)     # JAPO Credenciales requeridas por el broker
+client.connect(host=globales.MQTT_HOST, port = globales.MQTT_PORT) # JAPO Conectar al servidor remoto
 
 qos = 2
 
