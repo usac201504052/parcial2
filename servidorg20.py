@@ -45,7 +45,8 @@ client.subscribe(("salas/14/#", qos))
 
 
 try:
-    client.loop_start()
+    while True:
+        client.loop_start()
 except KeyboardInterrupt:
     logging.warning("Desconectando del broker...")
 finally:
