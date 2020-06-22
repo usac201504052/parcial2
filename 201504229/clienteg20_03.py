@@ -10,23 +10,23 @@ import binascii
 # JAPO Configuracion de logging
 logging.basicConfig(
     level = logging.INFO, 
-    format = '[%(levelname)s] (%(threadName)s) %(message)s'
+    format = '[%(levelname)s] (%(threadName)-10s) %(message)s'
     )
-# JAPO Funcion a ejecutar al establecer conexion
-def on_connect(client, userdata, flags, rc): 
-    connectionText = "CONNACK recibido del broker con codigo: " + str(rc)
-    logging.info(connectionText)
+
+# JAPO Funcion a ejecutar cuando se establece la conexion
+def on_connect(client, userdata, rc):
+    logging.info("Conectado al broker")
 
 # JAPO Funcion a ejecutar si se publica algo en el broker
 def on_publish(client, userdata, mid): 
     publishText = "Publicacion satisfactoria"
-    logging.debug(publishText)
+    logging.info(publishText)
 
 # JAPO Funcion a ejecutar si se recibe algo del broker
 def on_message(client, userdata, msg):
     #Se muestra en pantalla informacion que ha llegado
     logging.info("Tiene un mensaje en el topic: " + str(msg.topic))
-    logging.info("El contenido del mensaje es: " + str(msg.payload))
+    logging.info("El contenido del mensaje es: " + str(msg.payload.decode()))
 
 # JAPO Iniciar la conexion con el brocker
 client = mqtt.Client(clean_session=True)         # JAPO Nueva instancia de cliente MQTT
@@ -36,19 +36,9 @@ client.on_message = on_message                   # JAPO Funcion "Handler" a ejec
 client.username_pw_set(globales.MQTT_USER, globales.MQTT_PASS)     # JAPO Credenciales requeridas por el broker
 client.connect(host= globales.MQTT_HOST, port = globales.MQTT_PORT) # JAPO Conectar al servidor remoto
 
-
-
-class controlComandosCliente(object):
-    # JAPO Clase para el control de los comandos, enviara y recibira comandos al y del servidor
-    def __init__(self, client):
-        self.client = client
-
-    # JAPO Metodo para enviar comando ALIVE
-    def manifestarse(self, topic, trama, delay):
-        while True:
-            self.client.publish(topic, binascii.hexlify(tramaAlive), qos = 0, retain = False)
-            time.sleep(delay)
-    
+# JAPO SOCK_STREAM = TCP
+#sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+#server_address = (globales.IP_ADDR, globales.IP_PORT)  # JAPO Direccion IP y puerto en el que el servidor esta escuchando
 
 class cliente(object):
     # JAPO Clase con las funcionalidades de un cliente
@@ -63,39 +53,23 @@ class cliente(object):
     
     # JAPO Subscribirse a los topics necesarios
     def subscribir(self, topics = []):
-        self.client.subscribe()
+        self.client.subscribe(topics)
 
     # JAPO Terminar la comunicacion con mqtt
     def desconectar(self):
         self.client.disconnect()
-    
-    
+
 # JAPO Topics disponibles
-topicComandos = 'comandos/' +str(globales.NUMERO_GRUPO) + '/' + globales.USER_NAME
-#topicUsuarios = 'usuarios/' + str(userDestino)
-#topicSalas = 'salas/' + str(globales.NUMERO_GRUPO) + '/' + str(salaDestino)
+topicUsuarios = "usuarios/20/201504229"
+topicSalas = "salas/20/"
 
-dest = b'201501234'
-fSize = b'1024'
+qos = 2
+usuario = cliente(client)                 # JAPO Instancia de objeto cliente
+#cmd = controlComandosCliente(client)     # JAPO Instancia de objeto de control de comandos
 
-tramaFTR = globales.COMMAND_FTR + dest + fSize
-tramaAlive = globales.COMMAND_ALIVE + b'$' + globales.USER_NAME.encode()
-
-#client.publish(topicComandos, tramaAlive, qos = 0, retain = False)
-#client.publish(topicUsuarios, mensaje, qos = 0, retain = False)
-#client.publish(topicSalas, mensaje, qos = 0, retain = False)
-
-javier = cliente(client)                 # JAPO Instancia de objeto cliente
-cmd = controlComandosCliente(client)     # JAPO Instancia de objeto de control de comandos
-
-# JAPO Hilo para envio de comando Alive
-talive = threading.Thread(target= cmd.manifestarse,
-                         name='Alive', 
-                         args=(topicComandos, tramaAlive, globales.ALIVE_PERIOD),
-                         daemon= True
-                         )
-
-talive.start()    # JAPO Inicia el hilo
+# JAPO Suscripcion a topics
+usuario.subscribir((topicUsuarios, qos))
+client.loop_start()
 opcion = 0
 try:
     while opcion != '3':
@@ -110,10 +84,10 @@ try:
                 salaDest = input("Ingrese a que sala desea enviarlo \n")
                 # JAPO Configuracion topic salas
                 topic = 'salas/' + str(globales.NUMERO_GRUPO) + '/' + str(salaDest)
-            
+                usuario.subscribir((topic, qos))
             msj = input("Ingese mensaje \n") # JAPO Mensaje a enviar
             # JAPO Enviando por parametros el topic al que se desa enviar y el mensaje
-            javier.publicar(topic, msj.encode())   # JAPO El cliente en cuestion va a publicar el mensaje
+            usuario.publicar(topic, msj.encode())   # JAPO El cliente en cuestion va a publicar el mensaje
         elif opcion == '2':
             op = input(" 1 - Enviar a un usuario individual \n 2 - Enviar a una sala \n")
             if op == '1':
@@ -125,5 +99,5 @@ except KeyboardInterrupt:
     if talive.is_alive():
         talive._stop()
 finally:
-    javier.desconectar()
+    usuario.desconectar()
     logging.info("Se ha desconectado del broker. Saliendo...")
