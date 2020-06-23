@@ -16,16 +16,16 @@ ARCHIVO_USUARIOS = 'usuarios'
 ARCHIVO_SALAS = 'salas'
 
 # JAPO Credenciales del broker
-MQTT_HOST = "167.71.243.238"
-#MQTT_HOST = "127.0.0.1"
+#MQTT_HOST = "167.71.243.238"
+MQTT_HOST = "127.0.0.1"
 MQTT_PORT = 1883
 
 MQTT_USER = "proyectos"
 MQTT_PASS = "proyectos980"
 
 # JAPO Datos para conexion TCP
-IP_ADDR = "167.71.243.238"    # JAPO IP a la que se debe de conectar el servidor
-#IP_ADDR = "127.0.0.1"
+#IP_ADDR = "167.71.243.238"    # JAPO IP a la que se debe de conectar el servidor
+IP_ADDR = "127.0.0.1"
 IP_PORT = 9820                # JAPO Puerto para conexion TCP
 BUFFER_SIZE = 64 * 1024       # JAPO Tamanio de datos a recibir
 

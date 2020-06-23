@@ -2,7 +2,7 @@ import paho.mqtt.client as mqtt
 import logging
 import time
 import os 
-import globales
+from globales import *
 import threading
 import socket
 import binascii
@@ -32,12 +32,12 @@ client = mqtt.Client(clean_session=True)         # JAPO Nueva instancia de clien
 client.on_connect = on_connect                   # JAPO Funcion "Handler" a ejecutar cuando suceda la conexion
 client.on_publish = on_publish                   # JAPO Funcion "Handler" a ejecutar al publicar algo
 client.on_message = on_message                   # JAPO Funcion "Handler" a ejecutar al llegar un mensaje a un topic subscrito
-client.username_pw_set(globales.MQTT_USER, globales.MQTT_PASS)     # JAPO Credenciales requeridas por el broker
-client.connect(host= globales.MQTT_HOST, port = globales.MQTT_PORT) # JAPO Conectar al servidor remoto
+client.username_pw_set(MQTT_USER, MQTT_PASS)     # JAPO Credenciales requeridas por el broker
+client.connect(host= MQTT_HOST, port = MQTT_PORT) # JAPO Conectar al servidor remoto
 
 # JAPO SOCK_STREAM = TCP
 #sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#server_address = (globales.IP_ADDR, globales.IP_PORT)  # JAPO Direccion IP y puerto en el que el servidor esta escuchando
+#server_address = (IP_ADDR, IP_PORT)  # JAPO Direccion IP y puerto en el que el servidor esta escuchando
 
 class cliente(object):
     # JAPO Clase con las funcionalidades de un cliente
@@ -77,11 +77,11 @@ try:
             if op == '1':
                 userDest = input("Ingrese nombre de usuario \n")
                 # JAPO Configuracion topic usuarios
-                topic = 'usuarios/' + str(globales.NUMERO_GRUPO) + '/' + str(userDest)
+                topic = 'usuarios/' + str(NUMERO_GRUPO) + '/' + str(userDest)
             elif op == '2':
                 salaDest = input("Ingrese a que sala desea enviarlo \n")
                 # JAPO Configuracion topic salas
-                topic = 'salas/' + str(globales.NUMERO_GRUPO) + '/' + str(salaDest)
+                topic = 'salas/' + str(NUMERO_GRUPO) + '/' + str(salaDest)
                 usuario.subscribir((topic, qos))
             msj = input("Ingese mensaje \n") # JAPO Mensaje a enviar
             # JAPO Enviando por parametros el topic al que se desa enviar y el mensaje
