@@ -16,7 +16,7 @@ ARCHIVO_USUARIOS = 'usuarios'
 ARCHIVO_SALAS = 'salas'
 
 # JAPO Credenciales del broker
-#MQTT_HOST = "167.71.243.238"
+MQTT_HOST = "167.71.243.238"
 MQTT_HOST = "127.0.0.1"
 MQTT_PORT = 1883
 
